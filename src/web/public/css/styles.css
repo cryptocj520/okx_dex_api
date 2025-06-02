@@ -1,0 +1,427 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 15px;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 1.8em;
+    margin-bottom: 5px;
+}
+
+.header p {
+    opacity: 0.9;
+    font-size: 0.9em;
+}
+
+.content {
+    padding: 20px;
+}
+
+.section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 8px;
+}
+
+.section h4 {
+    color: #667eea;
+    margin: 15px 0 10px 0;
+    font-size: 1em;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9em;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* 按钮样式 */
+.btn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-small {
+    padding: 8px 15px;
+    font-size: 12px;
+    width: auto;
+    margin-bottom: 5px;
+    margin-right: 10px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #28a745, #1e7e34);
+}
+
+.btn-warning {
+    background: linear-gradient(45deg, #ffc107, #e0a800);
+    color: #212529;
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #6c757d, #545b62);
+}
+
+.btn-info {
+    background: linear-gradient(45deg, #17a2b8, #117a8b);
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.btn-group .btn {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* 结果显示 */
+.result {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 6px;
+    display: none;
+    font-size: 0.9em;
+    word-wrap: break-word;
+    clear: both;
+    width: 100%;
+    min-height: 50px;
+}
+
+.result.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.result.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+/* 状态指示器 */
+.status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.status.connected {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* 加载动画 */
+.loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 代币信息 */
+.token-info {
+    margin-top: 8px;
+    padding: 10px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+    display: none;
+    font-size: 0.85em;
+}
+
+.token-info.show {
+    display: block;
+}
+
+.token-info.success {
+    border-color: #28a745;
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.token-info.error {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* 代币选择 */
+.token-selection {
+    margin-bottom: 15px;
+}
+
+.token-selection label {
+    margin-bottom: 8px;
+}
+
+.token-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.token-btn {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.token-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* 金额输入组 */
+.amount-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.amount-input-group input {
+    flex: 2;
+}
+
+.amount-input-group select {
+    flex: 1;
+    min-width: 120px;
+}
+
+.conversion-text {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+    font-family: monospace;
+}
+
+/* 信息网格 */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.info-item {
+    background: white;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.info-item label {
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 0.8em;
+}
+
+.info-item span {
+    font-weight: 600;
+    color: #333;
+    font-family: monospace;
+    font-size: 0.8em;
+    word-break: break-all;
+}
+
+/* 对话框样式 */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.dialog h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* 提示文本 */
+.hint {
+    margin-bottom: 15px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-center small {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.text-center a {
+    color: #e74c3c;
+    text-decoration: none;
+}
+
+.text-center a:hover {
+    text-decoration: underline;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-row .form-group {
+        margin-bottom: 15px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .amount-input-group {
+        flex-direction: column;
+    }
+
+    .amount-input-group input,
+    .amount-input-group select {
+        flex: none;
+    }
+
+    .token-buttons {
+        justify-content: center;
+    }
+} 

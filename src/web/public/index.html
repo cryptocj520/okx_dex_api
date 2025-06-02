@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKX DEX 交易界面</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 OKX DEX 交易界面</h1>
+            <p>安全、快速的去中心化交易体验 (BSC链专用)</p>
+        </div>
+
+        <div class="content">
+            <!-- 解锁界面 -->
+            <div id="unlockSection" class="section" style="display: none;">
+                <h3>🔓 解锁配置</h3>
+                <p class="hint">检测到已保存的加密配置，请输入密码解锁：</p>
+                
+                <div class="form-group">
+                    <label for="unlockPassword">解锁密码:</label>
+                    <input type="password" id="unlockPassword" placeholder="输入您的解锁密码" 
+                           onkeypress="if(event.key==='Enter') unlockConfig()" />
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn" onclick="unlockConfig()">🔓 解锁配置</button>
+                    <button class="btn btn-secondary" onclick="showNewConfigForm()">🆕 新建配置</button>
+                </div>
+                
+                <div class="text-center">
+                    <small>
+                        忘记密码？ 
+                        <a href="#" onclick="confirmClearConfig()">清除保存的配置</a>
+                    </small>
+                </div>
+                
+                <div id="unlockResult" class="result"></div>
+            </div>
+
+            <!-- 配置部分 -->
+            <div id="configSection" class="section">
+                <h3>🔐 配置设置</h3>
+                
+                <!-- 配置控制按钮 -->
+                <div id="configControls" class="btn-group" style="display: none;">
+                    <button class="btn btn-small btn-secondary" onclick="lockConfig()">🔒 锁定</button>
+                    <button class="btn btn-small btn-success" onclick="showSavePasswordDialog()">💾 保存</button>
+                    <button class="btn btn-small btn-info" onclick="validateOKXAPI()">🔍 验证API</button>
+                </div>
+                
+                <!-- OKX API 配置 -->
+                <h4>OKX API 配置</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="okxApiKey">API Key:</label>
+                        <input type="text" id="okxApiKey" placeholder="输入 OKX API Key" />
+                    </div>
+                    <div class="form-group">
+                        <label for="okxSecretKey">Secret Key:</label>
+                        <input type="password" id="okxSecretKey" placeholder="输入 Secret Key" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="okxPassphrase">Passphrase:</label>
+                        <input type="password" id="okxPassphrase" placeholder="输入 API Passphrase" />
+                    </div>
+                    <div class="form-group">
+                        <label for="okxProjectId">Project ID:</label>
+                        <input type="text" id="okxProjectId" placeholder="输入项目 ID" />
+                    </div>
+                </div>
+                
+                <!-- 网络和钱包配置 -->
+                <h4>BSC网络与钱包配置</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="chainId">区块链:</label>
+                        <select id="chainId">
+                            <option value="56" selected>BSC (56)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rpcUrl">RPC URL:</label>
+                        <input type="text" id="rpcUrl" placeholder="将自动选择最佳BSC RPC端点" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="walletAddress">钱包地址:</label>
+                        <input type="text" id="walletAddress" placeholder="0x742d35Cc..." />
+                    </div>
+                    <div class="form-group">
+                        <label for="privateKey">私钥:</label>
+                        <input type="password" id="privateKey" placeholder="私钥 (不含0x)" />
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="setConfigWithSave()">设置配置</button>
+                <div id="validateResult" class="result"></div>
+                <div id="configResult" class="result"></div>
+            </div>
+
+            <!-- 账户信息 -->
+            <div class="section">
+                <h3>📊 账户信息</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>连接状态:</label>
+                        <span id="connectionStatus" class="status disconnected">未连接</span>
+                    </div>
+                    <div class="info-item">
+                        <label>BNB 余额:</label>
+                        <span id="ethBalance">--</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <label>钱包地址:</label>
+                    <span id="currentAddress">未设置</span>
+                </div>
+                <button class="btn" onclick="loadAccountInfo()">刷新账户信息</button>
+            </div>
+
+            <!-- 代币交换 -->
+            <div class="section">
+                <h3>💰 代币交换</h3>
+                
+                <!-- 快捷代币选择 -->
+                <div class="token-selection">
+                    <label>快捷选择代币:</label>
+                    <div class="token-buttons" id="tokenButtons">
+                        <!-- 动态生成按钮 -->
+                    </div>
+                </div>
+
+                <!-- 代币选择 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fromToken">从代币地址:</label>
+                        <input type="text" id="fromToken" placeholder="0x55d398326f99059fF775485246999027B3197955" />
+                        <div id="fromTokenInfo" class="token-info"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="toToken">到代币地址:</label>
+                        <input type="text" id="toToken" placeholder="0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c" />
+                        <div id="toTokenInfo" class="token-info"></div>
+                    </div>
+                </div>
+                
+                <!-- 交换参数 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">交换数量:</label>
+                        <div class="amount-input-group">
+                            <input type="text" id="amount" placeholder="1.0" />
+                            <select id="amountUnit">
+                                <option value="ether">代币单位</option>
+                                <option value="wei">Wei单位</option>
+                            </select>
+                        </div>
+                        <div id="amountConversion" class="conversion-text"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="slippage">滑点容忍度 (%):</label>
+                        <input type="text" id="slippage" value="0.5" placeholder="0.5" />
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="btn-group">
+                    <button class="btn" onclick="getQuote()">获取报价</button>
+                    <button class="btn btn-warning" onclick="approveToken()">授权代币</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="executeSwap()">执行交换</button>
+                </div>
+                
+                <!-- 结果显示 -->
+                <div id="quoteResult" class="result"></div>
+                <div id="approveResult" class="result"></div>
+                <div id="swapResult" class="result"></div>
+            </div>
+
+            <!-- 交易追踪 -->
+            <div class="section">
+                <h3>🔍 交易追踪</h3>
+                    <div class="form-group">
+                        <label for="orderId">订单ID或交易哈希:</label>
+                        <input type="text" id="orderId" placeholder="输入订单ID或交易哈希" />
+                </div>
+                <button class="btn" onclick="trackTransaction()">追踪交易状态</button>
+                <div id="trackResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- 保存密码对话框 -->
+        <div id="savePasswordDialog" class="dialog-overlay" style="display: none;">
+            <div class="dialog">
+                <h4>🔐 设置保存密码</h4>
+                <p class="hint">设置密码来加密保存配置信息：</p>
+                
+                <div class="form-group">
+                    <label for="savePassword">保存密码:</label>
+                    <input type="password" id="savePassword" placeholder="设置强密码（至少8位）" 
+                           onkeypress="if(event.key==='Enter') confirmSaveConfig()" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码:</label>
+                    <input type="password" id="confirmPassword" placeholder="再次输入密码" 
+                           onkeypress="if(event.key==='Enter') confirmSaveConfig()" />
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="confirmSaveConfig()">💾 保存</button>
+                    <button class="btn btn-secondary" onclick="closeSavePasswordDialog()">取消</button>
+                </div>
+                
+                <div id="savePasswordResult" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 模块 -->
+    <script src="js/crypto-utils.js"></script>
+    <script src="js/config-manager.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/formatters.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 

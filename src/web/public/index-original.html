@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKX DEX 交易界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 12px;
+            width: auto;
+            margin-bottom: 5px;
+            margin-right: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.9em;
+            word-wrap: break-word;
+            clear: both;
+            width: 100%;
+            min-height: 50px;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .token-info {
+            margin-top: 8px;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            display: none;
+            font-size: 0.85em;
+        }
+
+        .token-info.show {
+            display: block;
+        }
+
+        .token-info.success {
+            border-color: #28a745;
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .token-info.error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .amount-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .amount-input-group input {
+            flex: 2;
+        }
+
+        .amount-input-group select {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .conversion-text {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+            font-family: monospace;
+        }
+
+        .token-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .token-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .token-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .info-item label {
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 0.8em;
+        }
+
+        .info-item span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .quote-result {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+
+        .quote-header {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .quote-details {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .quote-arrow {
+            color: #4caf50;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .quote-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #666;
+            border-top: 1px solid #c8e6c9;
+            padding-top: 8px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .form-row .form-group {
+                margin-bottom: 15px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quote-details {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        small {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 对话框样式 */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialog {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .dialog h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 OKX DEX 交易界面</h1>
+            <p>安全、快速的去中心化交易体验</p>
+        </div>
+
+        <div class="content">
+            <!-- 解锁界面 -->
+            <div id="unlockSection" class="section" style="display: none;">
+                <h3>🔓 解锁配置</h3>
+                <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                    检测到已保存的加密配置，请输入密码解锁：
+                </p>
+                
+                <div class="form-group">
+                    <label for="unlockPassword">解锁密码:</label>
+                    <input type="password" id="unlockPassword" placeholder="输入您的解锁密码" 
+                           onkeypress="if(event.key==='Enter') unlockConfig()" />
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn" onclick="unlockConfig()">🔓 解锁配置</button>
+                    <button class="btn" onclick="showNewConfigForm()" 
+                            style="background: linear-gradient(45deg, #ff6b6b, #ee5a52);">
+                        🆕 新建配置
+                    </button>
+                </div>
+                
+                <div style="text-align: center;">
+                    <small style="color: #666;">
+                        忘记密码？ 
+                        <a href="#" onclick="confirmClearConfig()" style="color: #e74c3c;">
+                            清除保存的配置
+                        </a>
+                    </small>
+                </div>
+                
+                <div id="unlockResult" class="result"></div>
+            </div>
+
+            <!-- 配置部分 -->
+            <div id="configSection" class="section">
+                <h3>🔐 配置设置</h3>
+                
+                <!-- 配置控制按钮 -->
+                <div id="configControls" class="btn-group" style="display: none;">
+                    <button class="btn btn-small" onclick="lockConfig()" style="background: #6c757d;">🔒 锁定</button>
+                    <button class="btn btn-small" onclick="showSavePasswordDialog()" style="background: #28a745;">💾 保存</button>
+                    <button class="btn btn-small" onclick="validateOKXAPI()" style="background: #17a2b8;">🔍 验证API</button>
+                </div>
+                
+                <!-- OKX API 配置 -->
+                <h4 style="margin: 15px 0 10px 0; color: #667eea; font-size: 1em;">OKX API 配置</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="okxApiKey">API Key:</label>
+                        <input type="text" id="okxApiKey" placeholder="输入 OKX API Key" />
+                    </div>
+                    <div class="form-group">
+                        <label for="okxSecretKey">Secret Key:</label>
+                        <input type="password" id="okxSecretKey" placeholder="输入 Secret Key" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="okxPassphrase">Passphrase:</label>
+                        <input type="password" id="okxPassphrase" placeholder="输入 API Passphrase" />
+                    </div>
+                    <div class="form-group">
+                        <label for="okxProjectId">Project ID:</label>
+                        <input type="text" id="okxProjectId" placeholder="输入项目 ID" />
+                    </div>
+                </div>
+                
+                <!-- 网络和钱包配置 -->
+                <h4 style="margin: 15px 0 10px 0; color: #667eea; font-size: 1em;">网络与钱包配置</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="chainId">区块链:</label>
+                        <select id="chainId" onchange="updateChainConfig()">
+                            <option value="1">以太坊 (1)</option>
+                            <option value="8453">Base (8453)</option>
+                            <option value="56">BSC (56)</option>
+                            <option value="137">Polygon (137)</option>
+                            <option value="42161">Arbitrum (42161)</option>
+                            <option value="10">Optimism (10)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rpcUrl">RPC URL:</label>
+                        <input type="text" id="rpcUrl" placeholder="https://eth-mainnet.alchemyapi.io/v2/your_key" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="walletAddress">钱包地址:</label>
+                        <input type="text" id="walletAddress" placeholder="0x742d35Cc..." />
+                    </div>
+                    <div class="form-group">
+                        <label for="privateKey">私钥:</label>
+                        <input type="password" id="privateKey" placeholder="私钥 (不含0x)" />
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="setConfigWithSave()">设置配置</button>
+                <div id="validateResult" class="result"></div>
+                <div id="configResult" class="result"></div>
+            </div>
+
+            <!-- 账户信息 -->
+            <div class="section">
+                <h3>📊 账户信息</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>连接状态:</label>
+                        <span id="connectionStatus" class="status disconnected">未连接</span>
+                    </div>
+                    <div class="info-item">
+                        <label>ETH 余额:</label>
+                        <span id="ethBalance">--</span>
+                    </div>
+                </div>
+                <div class="info-item" style="margin-bottom: 15px;">
+                    <label>钱包地址:</label>
+                    <span id="currentAddress" style="font-family: monospace; font-size: 0.8em; word-break: break-all;">未设置</span>
+                </div>
+                <button class="btn" onclick="loadAccountInfo()">刷新账户信息</button>
+            </div>
+
+            <!-- 代币交换 -->
+            <div class="section">
+                <h3>💰 代币交换</h3>
+                
+                <!-- 快捷代币选择 -->
+                <div style="margin-bottom: 15px;">
+                    <label style="margin-bottom: 8px;">快捷选择代币:</label>
+                    <div class="token-buttons" id="tokenButtons">
+                        <button class="token-btn" onclick="selectToken('from', '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE')">ETH</button>
+                        <button class="token-btn" onclick="selectToken('from', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48')">USDC</button>
+                        <button class="token-btn" onclick="selectToken('from', '0xdAC17F958D2ee523a2206206994597C13D831ec7')">USDT</button>
+                        <button class="token-btn" onclick="selectToken('from', '0x6B175474E89094C44Da98b954EedeAC495271d0F')">DAI</button>
+                    </div>
+                </div>
+
+                <!-- 代币选择 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fromToken">从代币地址:</label>
+                        <input type="text" id="fromToken" placeholder="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" 
+                               oninput="debounceGetTokenInfo('from')" />
+                        <div id="fromTokenInfo" class="token-info"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="toToken">到代币地址:</label>
+                        <input type="text" id="toToken" placeholder="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" 
+                               oninput="debounceGetTokenInfo('to')" />
+                        <div id="toTokenInfo" class="token-info"></div>
+                    </div>
+                </div>
+                
+                <!-- 交换参数 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">交换数量:</label>
+                        <div class="amount-input-group">
+                            <input type="text" id="amount" placeholder="1.0" oninput="updateAmountConversion()" />
+                            <select id="amountUnit" onchange="updateAmountConversion()">
+                                <option value="ether">代币单位</option>
+                                <option value="wei">Wei单位</option>
+                            </select>
+                        </div>
+                        <div id="amountConversion" class="conversion-text"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="slippage">滑点容忍度 (%):</label>
+                        <input type="text" id="slippage" value="0.5" placeholder="0.5" />
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="btn-group">
+                    <button class="btn" onclick="getQuote()">获取报价</button>
+                    <button class="btn" onclick="approveToken()" style="background: linear-gradient(45deg, #ff9500, #ff6b6b);">授权代币</button>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="executeSwap()">执行交换</button>
+                </div>
+                
+                <!-- 结果显示 -->
+                <div id="quoteResult" class="result"></div>
+                <div id="approveResult" class="result"></div>
+                <div id="swapResult" class="result"></div>
+            </div>
+
+            <!-- 交易追踪 -->
+            <div class="section">
+                <h3>🔍 交易追踪</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="orderId">订单ID或交易哈希:</label>
+                        <input type="text" id="orderId" placeholder="输入订单ID或交易哈希" />
+                    </div>
+                </div>
+                <button class="btn" onclick="trackTransaction()">追踪交易状态</button>
+                <div id="trackResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- 保存密码对话框 -->
+        <div id="savePasswordDialog" class="dialog-overlay" style="display: none;">
+            <div class="dialog">
+                <h4>🔐 设置保存密码</h4>
+                <p style="margin-bottom: 15px; color: #666; font-size: 0.9em;">
+                    设置密码来加密保存配置信息：
+                </p>
+                
+                <div class="form-group">
+                    <label for="savePassword">保存密码:</label>
+                    <input type="password" id="savePassword" placeholder="设置强密码（至少8位）" 
+                           onkeypress="if(event.key==='Enter') confirmSaveConfig()" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码:</label>
+                    <input type="password" id="confirmPassword" placeholder="再次输入密码" 
+                           onkeypress="if(event.key==='Enter') confirmSaveConfig()" />
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn" onclick="confirmSaveConfig()" style="background: #28a745;">💾 保存</button>
+                    <button class="btn" onclick="closeSavePasswordDialog()" style="background: #6c757d;">取消</button>
+                </div>
+                
+                <div id="savePasswordResult" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 加密解密工具类
+        class CryptoUtils {
+            // 使用PBKDF2从密码生成密钥
+            static async deriveKey(password, salt) {
+                const encoder = new TextEncoder();
+                const keyMaterial = await window.crypto.subtle.importKey(
+                    'raw',
+                    encoder.encode(password),
+                    { name: 'PBKDF2' },
+                    false,
+                    ['deriveBits', 'deriveKey']
+                );
+                
+                return window.crypto.subtle.deriveKey(
+                    {
+                        name: 'PBKDF2',
+                        salt: encoder.encode(salt),
+                        iterations: 100000,
+                        hash: 'SHA-256'
+                    },
+                    keyMaterial,
+                    { name: 'AES-GCM', length: 256 },
+                    false,
+                    ['encrypt', 'decrypt']
+                );
+            }
+            
+            // 加密数据
+            static async encrypt(data, password) {
+                try {
+                    const encoder = new TextEncoder();
+                    const salt = crypto.getRandomValues(new Uint8Array(16));
+                    const iv = crypto.getRandomValues(new Uint8Array(12));
+                    
+                    const key = await this.deriveKey(password, salt);
+                    const encrypted = await window.crypto.subtle.encrypt(
+                        { name: 'AES-GCM', iv: iv },
+                        key,
+                        encoder.encode(JSON.stringify(data))
+                    );
+                    
+                    // 将salt、iv和加密数据组合
+                    const result = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+                    result.set(salt, 0);
+                    result.set(iv, salt.length);
+                    result.set(new Uint8Array(encrypted), salt.length + iv.length);
+                    
+                    return btoa(String.fromCharCode(...result));
+                } catch (error) {
+                    throw new Error('加密失败: ' + error.message);
+                }
+            }
+            
+            // 解密数据
+            static async decrypt(encryptedData, password) {
+                try {
+                    const data = new Uint8Array(atob(encryptedData).split('').map(c => c.charCodeAt(0)));
+                    
+                    const salt = data.slice(0, 16);
+                    const iv = data.slice(16, 28);
+                    const encrypted = data.slice(28);
+                    
+                    const key = await this.deriveKey(password, salt);
+                    const decrypted = await window.crypto.subtle.decrypt(
+                        { name: 'AES-GCM', iv: iv },
+                        key,
+                        encrypted
+                    );
+                    
+                    const decoder = new TextDecoder();
+                    return JSON.parse(decoder.decode(decrypted));
+                } catch (error) {
+                    throw new Error('解密失败: 密码错误或数据损坏');
+                }
+            }
+        }
+
+        // 配置管理类
+        class ConfigManager {
+            static STORAGE_KEY = 'okx_dex_encrypted_config';
+            static isUnlocked = false;
+            static currentConfig = null;
+            
+            // 保存加密配置
+            static async saveEncryptedConfig(config, password) {
+                try {
+                    // 过滤敏感信息
+                    const sensitiveConfig = {
+                        okxApiKey: config.okxApiKey,
+                        okxSecretKey: config.okxSecretKey,
+                        okxPassphrase: config.okxPassphrase,
+                        okxProjectId: config.okxProjectId,
+                        privateKey: config.privateKey,
+                        walletAddress: config.walletAddress,
+                        rpcUrl: config.rpcUrl,
+                        chainId: config.chainId,
+                        savedAt: new Date().toISOString()
+                    };
+                    
+                    const encrypted = await CryptoUtils.encrypt(sensitiveConfig, password);
+                    localStorage.setItem(this.STORAGE_KEY, encrypted);
+                    return true;
+                } catch (error) {
+                    console.error('保存配置失败:', error);
+                    return false;
+                }
+            }
+            
+            // 加载并解密配置
+            static async loadEncryptedConfig(password) {
+                try {
+                    const encrypted = localStorage.getItem(this.STORAGE_KEY);
+                    if (!encrypted) {
+                        throw new Error('没有找到保存的配置');
+                    }
+                    
+                    const config = await CryptoUtils.decrypt(encrypted, password);
+                    this.isUnlocked = true;
+                    this.currentConfig = config;
+                    return config;
+                } catch (error) {
+                    this.isUnlocked = false;
+                    this.currentConfig = null;
+                    throw error;
+                }
+            }
+            
+            // 检查是否有保存的配置
+            static hasEncryptedConfig() {
+                return localStorage.getItem(this.STORAGE_KEY) !== null;
+            }
+            
+            // 删除保存的配置
+            static clearEncryptedConfig() {
+                localStorage.removeItem(this.STORAGE_KEY);
+                this.isUnlocked = false;
+                this.currentConfig = null;
+            }
+            
+            // 锁定配置
+            static lock() {
+                this.isUnlocked = false;
+                this.currentConfig = null;
+                // 清空表单
+                this.clearForm();
+                // 显示解锁界面
+                this.showUnlockInterface();
+            }
+            
+            // 清空表单
+            static clearForm() {
+                ['okxApiKey', 'okxSecretKey', 'okxPassphrase', 'okxProjectId', 
+                 'privateKey', 'walletAddress', 'rpcUrl'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.value = '';
+                });
+            }
+            
+            // 填充表单
+            static fillForm(config) {
+                Object.keys(config).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element && config[key]) {
+                        element.value = config[key];
+                    }
+                });
+                
+                // 更新链配置
+                if (config.chainId) {
+                    document.getElementById('chainId').value = config.chainId;
+                    updateChainConfig();
+                }
+            }
+            
+            // 显示解锁界面
+            static showUnlockInterface() {
+                const hasConfig = this.hasEncryptedConfig();
+                const unlockSection = document.getElementById('unlockSection');
+                const configSection = document.getElementById('configSection');
+                
+                if (hasConfig) {
+                    unlockSection.style.display = 'block';
+                    configSection.style.display = 'none';
+                } else {
+                    unlockSection.style.display = 'none';
+                    configSection.style.display = 'block';
+                }
+            }
+            
+            // 显示配置界面
+            static showConfigInterface() {
+                const unlockSection = document.getElementById('unlockSection');
+                const configSection = document.getElementById('configSection');
+                
+                unlockSection.style.display = 'none';
+                configSection.style.display = 'block';
+            }
+        }
+
+        // 防抖定时器
+        let tokenInfoTimeouts = {};
+
+        // 快速选择代币
+        function selectToken(type, address) {
+            const inputId = type === 'from' ? 'fromToken' : 'toToken';
+            document.getElementById(inputId).value = address;
+            getTokenInfo(type, address);
+        }
+
+        // 防抖获取代币信息
+        function debounceGetTokenInfo(type) {
+            const address = document.getElementById(type === 'from' ? 'fromToken' : 'toToken').value;
+            
+            // 清除之前的定时器
+            if (tokenInfoTimeouts[type]) {
+                clearTimeout(tokenInfoTimeouts[type]);
+            }
+            
+            // 设置新的定时器
+            tokenInfoTimeouts[type] = setTimeout(() => {
+                if (address && address.length >= 42) {
+                    getTokenInfo(type, address);
+                } else {
+                    hideTokenInfo(type);
+                }
+            }, 500);
+        }
+
+        // 获取代币信息
+        async function getTokenInfo(type, address) {
+            const infoId = type === 'from' ? 'fromTokenInfo' : 'toTokenInfo';
+            const infoElement = document.getElementById(infoId);
+            
+            if (!address || address.length < 42) {
+                hideTokenInfo(type);
+                return;
+            }
+            
+            try {
+                infoElement.className = 'token-info show';
+                infoElement.innerHTML = '<span class="loading"></span>获取代币信息中...';
+                
+                const result = await apiCall(`/api/token-info/${address}`);
+                
+                if (result.success) {
+                    infoElement.className = 'token-info show success';
+                    infoElement.innerHTML = `
+                        <strong>${result.data.symbol}</strong> - ${result.data.name}<br>
+                        <small>精度: ${result.data.decimals} 位</small>
+                    `;
+                } else {
+                    infoElement.className = 'token-info show error';
+                    infoElement.innerHTML = `❌ ${result.message}`;
+                }
+            } catch (error) {
+                infoElement.className = 'token-info show error';
+                infoElement.innerHTML = `❌ 获取代币信息失败: ${error.message}`;
+            }
+        }
+
+        // 隐藏代币信息
+        function hideTokenInfo(type) {
+            const infoId = type === 'from' ? 'fromTokenInfo' : 'toTokenInfo';
+            const infoElement = document.getElementById(infoId);
+            if (infoElement) {
+                infoElement.className = 'token-info';
+                infoElement.innerHTML = '';
+            }
+        }
+
+        // 更新数量助手 - 移除版本，避免访问不存在的元素
+        function updateAmountHelper(type, tokenData) {
+            // 不再显示数量助手，简化界面
+            return;
+        }
+
+        // API 调用函数
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(endpoint, options);
+                return await response.json();
+            } catch (error) {
+                return {
+                    success: false,
+                    message: error.message
+                };
+            }
+        }
+
+        // 显示结果 - 优化版本
+        function showResult(elementId, result, isSuccess = null) {
+            const element = document.getElementById(elementId);
+            const success = isSuccess !== null ? isSuccess : result.success;
+            
+            element.className = `result ${success ? 'success' : 'error'}`;
+            element.style.display = 'block';
+            
+            if (typeof result === 'object') {
+                let displayContent = '';
+                
+                if (!success && result.message) {
+                    // 简化错误信息显示 - 改进版本
+                    if (result.message.includes('请先配置') || result.message.includes('客户端未初始化')) {
+                        displayContent = `⚠️ 请先完成配置设置 - 填写并保存OKX API和钱包配置信息`;
+                    } else if (result.message.includes('status code 401') || result.message.includes('API认证失败')) {
+                        displayContent = `❌ API认证失败 - 请检查OKX API配置信息是否正确`;
+                    } else if (result.message.includes('Insufficient liquidity')) {
+                        displayContent = `⚠️ 流动性不足 - 请尝试减少交换数量或更换代币对`;
+                    } else if (result.message.includes('网络连接') || result.message.includes('ECONNREFUSED')) {
+                        displayContent = `❌ 网络连接失败 - 请检查RPC URL配置`;
+                    } else if (result.message.includes('缺少必需的参数')) {
+                        displayContent = `❌ 参数错误 - 请检查代币地址和数量是否正确填写`;
+                    } else {
+                        displayContent = `❌ ${result.message}`;
+                    }
+                } else if (success && result.data) {
+                    // 改进成功信息显示
+                    if (elementId === 'quoteResult') {
+                        displayContent = formatQuoteResult(result.data);
+                    } else if (elementId === 'swapResult') {
+                        displayContent = formatSwapResult(result.data);
+                    } else if (elementId === 'approveResult') {
+                        displayContent = formatApprovalResult(result.data);
+                    } else if (elementId === 'validateResult') {
+                        displayContent = `✅ API配置验证成功`;
+                    } else if (elementId === 'configResult') {
+                        displayContent = `✅ 配置设置成功`;
+                    } else {
+                        displayContent = `✅ 操作成功`;
+                    }
+                } else {
+                    // 显示原始数据用于调试
+                    displayContent = `<pre style="max-height: 150px; overflow-y: auto; font-size: 0.8em;">${JSON.stringify(result, null, 2)}</pre>`;
+                }
+                
+                element.innerHTML = displayContent;
+            } else {
+                element.textContent = result;
+            }
+        }
+
+        // 格式化报价结果
+        function formatQuoteResult(data) {
+            console.log('前端接收到的报价数据:', data); // 调试日志
+            
+            // 检查数据结构 - 适配后端返回的格式
+            if (!data) {
+                return '❌ 未获取到报价数据';
+            }
+
+            // 从返回的数据中提取关键信息 - 修正数据路径
+            let fromToken, toToken, fromTokenAmount, toTokenAmount, estimatedGas, priceImpact;
+            
+            // 检查是否有routerResult（新格式）
+            if (data.routerResult) {
+                fromToken = data.routerResult.fromToken;
+                toToken = data.routerResult.toToken;
+                fromTokenAmount = data.routerResult.fromTokenAmount;
+                toTokenAmount = data.routerResult.toTokenAmount;
+                estimatedGas = data.routerResult.estimateGasFee || '0';
+                priceImpact = data.routerResult.priceImpactPercentage || '0';
+            } else {
+                // 兼容旧格式
+                fromToken = data.fromToken;
+                toToken = data.toToken;
+                fromTokenAmount = data.fromTokenAmount;
+                toTokenAmount = data.toTokenAmount;
+                estimatedGas = data.estimateGasFee || '0';
+                priceImpact = data.priceImpactPercentage || '0';
+            }
+
+            if (!fromToken || !toToken) {
+                return '❌ 报价数据格式错误：缺少代币信息';
+            }
+            
+            // 计算数量（从wei转换为代币单位）
+            const fromAmount = fromTokenAmount ? (parseFloat(fromTokenAmount) / Math.pow(10, parseInt(fromToken.decimal || 18))).toFixed(6) : '0';
+            const toAmount = toTokenAmount ? (parseFloat(toTokenAmount) / Math.pow(10, parseInt(toToken.decimal || 18))).toFixed(6) : '0';
+            
+            // 计算价格比率
+            const fromAmountNum = parseFloat(fromAmount);
+            const toAmountNum = parseFloat(toAmount);
+            const price = fromAmountNum > 0 ? (toAmountNum / fromAmountNum).toFixed(6) : '0';
+            
+            // 显示DEX路由信息
+            let routeInfo = '';
+            const dexRouterList = data.routerResult?.dexRouterList || data.dexRouterList;
+            if (dexRouterList && dexRouterList.length > 0) {
+                const route = dexRouterList[0];
+                if (route.subRouterList && route.subRouterList[0] && route.subRouterList[0].dexProtocol) {
+                    const dexName = route.subRouterList[0].dexProtocol[0]?.dexName || '未知DEX';
+                    routeInfo = `<div style="font-size: 0.75em; color: #666; margin-top: 4px;">通过 ${dexName} 路由</div>`;
+                }
+            }
+            
+            // 显示多个DEX比较信息
+            let compareInfo = '';
+            const quoteCompareList = data.routerResult?.quoteCompareList || data.quoteCompareList;
+            if (quoteCompareList && quoteCompareList.length > 1) {
+                compareInfo = `<div style="font-size: 0.75em; color: #666; margin-top: 4px;">比较了 ${quoteCompareList.length} 个DEX，选择最优路由</div>`;
+            }
+            
+            return `
+                <div style="background: #e8f5e8; border: 1px solid #4caf50; border-radius: 4px; padding: 8px; margin: 4px 0; font-size: 0.85em;">
+                    <div style="font-weight: bold; color: #2e7d32; margin-bottom: 6px;">💰 BSC链报价结果</div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span>支付: <strong>${fromAmount} ${fromToken.tokenSymbol}</strong></span>
+                        <span style="color: #4caf50; margin: 0 8px;">→</span>
+                        <span>获得: <strong style="color: #2e7d32;">${toAmount} ${toToken.tokenSymbol}</strong></span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #666; border-top: 1px solid #c8e6c9; padding-top: 4px;">
+                        <span>价格: 1 ${fromToken.tokenSymbol} = ${price} ${toToken.tokenSymbol}</span>
+                        <span>价格影响: ${priceImpact}%</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #888; margin-top: 2px;">
+                        <span>预估Gas: ${formatGasFee(estimatedGas)}</span>
+                        <span>滑点容忍: ${data.slippage || '0.5'}%</span>
+                    </div>
+                    
+                    ${routeInfo}
+                    ${compareInfo}
+                </div>
+            `;
+        }
+
+        // 格式化代币数量显示
+        function formatTokenAmount(amount, symbol) {
+            if (!amount || amount === 0) return '0';
+            
+            const num = Number(amount);
+            if (num >= 1e9) {
+                return `${(num / 1e9).toFixed(2)}B ${symbol}`;
+            } else if (num >= 1e6) {
+                return `${(num / 1e6).toFixed(2)}M ${symbol}`;
+            } else if (num >= 1e3) {
+                return `${(num / 1e3).toFixed(2)}K ${symbol}`;
+            } else if (num >= 1) {
+                return `${num.toFixed(4)} ${symbol}`;
+            } else {
+                return `${num.toExponential(2)} ${symbol}`;
+            }
+        }
+
+        // 格式化Gas费显示
+        function formatGasFee(gasFee) {
+            const num = Number(gasFee);
+            if (num === 0) return '0 BNB';
+            
+            const bnbValue = num / 1e18;
+            if (bnbValue >= 0.01) {
+                return `${bnbValue.toFixed(4)} BNB`;
+            } else {
+                return `${bnbValue.toExponential(2)} BNB`;
+            }
+        }
+
+        // 显示加载状态
+        function setLoading(buttonElement, loading = true) {
+            if (loading) {
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = '<span class="loading"></span>处理中...';
+            } else {
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = buttonElement.getAttribute('data-original-text') || '执行';
+            }
+        }
+
+        // 设置配置
+        async function setConfig() {
+            const okxApiKey = document.getElementById('okxApiKey').value;
+            const okxSecretKey = document.getElementById('okxSecretKey').value;
+            const okxPassphrase = document.getElementById('okxPassphrase').value;
+            const okxProjectId = document.getElementById('okxProjectId').value;
+            const rpcUrl = document.getElementById('rpcUrl').value;
+            const chainId = document.getElementById('chainId').value;
+            const walletAddress = document.getElementById('walletAddress').value;
+            const privateKey = document.getElementById('privateKey').value;
+            const btn = document.querySelector('button[onclick="setConfigWithSave()"]');
+            
+            if (!btn.getAttribute('data-original-text')) {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            }
+            
+            if (!okxApiKey || !okxSecretKey || !okxPassphrase || !okxProjectId || !rpcUrl || !chainId || !walletAddress || !privateKey) {
+                showResult('configResult', { success: false, message: '请填写所有配置项' }, false);
+                return;
+            }
+
+            setLoading(btn);
+            
+            const result = await apiCall('/api/config', 'POST', {
+                okxApiKey,
+                okxSecretKey,
+                okxPassphrase,
+                okxProjectId,
+                rpcUrl,
+                chainId,
+                walletAddress,
+                privateKey
+            });
+
+            setLoading(btn, false);
+            showResult('configResult', result);
+            
+            if (result.success) {
+                loadAccountInfo();
+            }
+        }
+
+        // 修改原有的setConfig函数，添加保存提示
+        async function setConfigWithSave() {
+            // 先执行原有的设置配置逻辑
+            await setConfig();
+            
+            // 如果配置成功且未解锁状态，提示保存
+            if (!ConfigManager.isUnlocked) {
+                const result = document.getElementById('configResult');
+                if (result.classList.contains('success')) {
+                    setTimeout(() => {
+                        if (confirm('配置设置成功！是否要加密保存到本地，以便下次快速使用？')) {
+                            showSavePasswordDialog();
+                        }
+                    }, 1000);
+                }
+            }
+        }
+
+        // 金额转换工具函数
+        function parseUnits(value, decimals = 18) {
+            if (!value || isNaN(value)) return '0';
+            
+            // 如果小数位数大于代币精度，截断
+            const parts = value.toString().split('.');
+            if (parts.length > 1 && parts[1].length > decimals) {
+                const truncated = parts[0] + '.' + parts[1].slice(0, decimals);
+                value = parseFloat(truncated);
+            }
+            
+            // 转换为wei
+            const factor = BigInt(10) ** BigInt(decimals);
+            const integerPart = BigInt(Math.floor(value));
+            const fractionalPart = value - Math.floor(value);
+            
+            const weiInteger = integerPart * factor;
+            const weiFractional = BigInt(Math.round(fractionalPart * Number(factor)));
+            
+            return (weiInteger + weiFractional).toString();
+        }
+
+        function formatUnits(value, decimals = 18) {
+            if (!value || value === '0') return '0';
+            
+            const factor = BigInt(10) ** BigInt(decimals);
+            const bigValue = BigInt(value);
+            
+            const integerPart = bigValue / factor;
+            const fractionalPart = bigValue % factor;
+            
+            const fractionalStr = fractionalPart.toString().padStart(decimals, '0');
+            const trimmed = fractionalStr.replace(/0+$/, '');
+            
+            if (trimmed === '') {
+                return integerPart.toString();
+            } else {
+                return integerPart.toString() + '.' + trimmed;
+            }
+        }
+
+        // 更新金额转换显示
+        function updateAmountConversion() {
+            const amountInput = document.getElementById('amount');
+            const unitSelect = document.getElementById('amountUnit');
+            const conversionDiv = document.getElementById('amountConversion');
+            
+            if (!amountInput || !unitSelect || !conversionDiv) return;
+            
+            const value = amountInput.value;
+            const unit = unitSelect.value;
+            
+            if (!value || isNaN(value) || parseFloat(value) <= 0) {
+                conversionDiv.textContent = '';
+                return;
+            }
+            
+            if (unit === 'ether') {
+                const weiValue = parseUnits(value, 18);
+                // 简化显示：只显示科学计数法或者简化的数字
+                const weiNumber = BigInt(weiValue);
+                if (weiNumber >= BigInt('1000000000000000000')) {
+                    const ethValue = Number(weiNumber) / 1e18;
+                    conversionDiv.textContent = `= ${ethValue.toExponential(2)} wei`;
+                } else {
+                    conversionDiv.textContent = `= ${weiValue} wei`;
+                }
+            } else {
+                const etherValue = formatUnits(value, 18);
+                conversionDiv.textContent = `= ${etherValue} 代币单位`;
+            }
+        }
+
+        // 获取最终的wei金额
+        function getFinalAmount() {
+            const amountInput = document.getElementById('amount');
+            const unitSelect = document.getElementById('amountUnit');
+            
+            if (!amountInput || !unitSelect) return '0';
+            
+            const value = amountInput.value;
+            const unit = unitSelect.value;
+            
+            if (!value || isNaN(value) || parseFloat(value) <= 0) return '0';
+            
+            if (unit === 'ether') {
+                return parseUnits(value, 18);
+            } else {
+                return value; // 已经是wei
+            }
+        }
+
+        // 加载账户信息
+        async function loadAccountInfo() {
+            const result = await apiCall('/api/account');
+            
+            if (result.success) {
+                document.getElementById('connectionStatus').textContent = result.data.connected ? '已连接' : '未连接';
+                document.getElementById('connectionStatus').className = `status ${result.data.connected ? 'connected' : 'disconnected'}`;
+                document.getElementById('ethBalance').textContent = result.data.ethBalance;
+                document.getElementById('currentAddress').textContent = result.data.walletAddress;
+            }
+        }
+
+        // 检查配置是否已设置
+        function checkConfigurationReady() {
+            const okxApiKey = document.getElementById('okxApiKey').value;
+            const okxSecretKey = document.getElementById('okxSecretKey').value;
+            const okxPassphrase = document.getElementById('okxPassphrase').value;
+            const okxProjectId = document.getElementById('okxProjectId').value;
+            const rpcUrl = document.getElementById('rpcUrl').value;
+            const chainId = document.getElementById('chainId').value;
+            const walletAddress = document.getElementById('walletAddress').value;
+            const privateKey = document.getElementById('privateKey').value;
+
+            if (!okxApiKey || !okxSecretKey || !okxPassphrase || !okxProjectId || 
+                !rpcUrl || !chainId || !walletAddress || !privateKey) {
+                return false;
+            }
+            return true;
+        }
+
+        // 获取报价
+        async function getQuote() {
+            // 检查配置是否完整
+            if (!checkConfigurationReady()) {
+                showResult('quoteResult', { 
+                    success: false, 
+                    message: '请先完成配置设置：填写完整的 OKX API 配置、网络配置和钱包信息，然后点击"设置配置"按钮' 
+                }, false);
+                return;
+            }
+
+            const fromTokenAddress = document.getElementById('fromToken').value;
+            const toTokenAddress = document.getElementById('toToken').value;
+            const amount = getFinalAmount(); // 使用转换后的wei金额
+            const slippage = document.getElementById('slippage').value;
+            const chainId = document.getElementById('chainId').value; // 获取链ID
+            const btn = document.querySelector('button[onclick="getQuote()"]');
+            
+            if (!btn.getAttribute('data-original-text')) {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            }
+
+            if (!fromTokenAddress || !toTokenAddress) {
+                showResult('quoteResult', { success: false, message: '请选择要交换的代币' }, false);
+                return;
+            }
+
+            if (!amount || amount === '0') {
+                showResult('quoteResult', { success: false, message: '请输入有效的数量' }, false);
+                return;
+            }
+
+            if (!chainId) {
+                showResult('quoteResult', { success: false, message: '请选择区块链网络' }, false);
+                return;
+            }
+
+            setLoading(btn);
+
+            const result = await apiCall('/api/quote', 'POST', {
+                fromTokenAddress,
+                toTokenAddress,
+                amount,
+                slippage,
+                chainIndex: chainId, // 根据官方文档使用chainIndex
+                chainId: chainId,    // 保留chainId以兼容
+                userWalletAddress: document.getElementById('walletAddress').value // 恢复必需的参数
+            });
+
+            setLoading(btn, false);
+            showResult('quoteResult', result);
+        }
+
+        // 执行交换
+        async function executeSwap() {
+            // 检查配置是否完整
+            if (!checkConfigurationReady()) {
+                showResult('swapResult', { 
+                    success: false, 
+                    message: '请先完成配置设置：填写完整的 OKX API 配置、网络配置和钱包信息，然后点击"设置配置"按钮' 
+                }, false);
+                return;
+            }
+
+            const fromTokenAddress = document.getElementById('fromToken').value;
+            const toTokenAddress = document.getElementById('toToken').value;
+            const amount = getFinalAmount(); // 使用转换后的wei金额
+            const slippage = document.getElementById('slippage').value;
+            const chainId = document.getElementById('chainId').value; // 获取链ID
+            const btn = document.querySelector('button[onclick="executeSwap()"]');
+            
+            if (!btn.getAttribute('data-original-text')) {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            }
+
+            if (!amount || amount === '0') {
+                showResult('swapResult', { success: false, message: '请输入有效的数量' }, false);
+                return;
+            }
+
+            if (!chainId) {
+                showResult('swapResult', { success: false, message: '请选择区块链网络' }, false);
+                return;
+            }
+
+            if (!confirm('确定要执行交换吗？这将花费真实的代币和Gas费用。')) {
+                return;
+            }
+
+            setLoading(btn);
+
+            const result = await apiCall('/api/swap', 'POST', {
+                fromTokenAddress,
+                toTokenAddress,
+                amount,
+                slippage,
+                chainIndex: chainId, // 根据官方文档使用chainIndex
+                chainId: chainId,    // 保留chainId以兼容
+                userWalletAddress: document.getElementById('walletAddress').value // 恢复必需的参数
+            });
+
+            setLoading(btn, false);
+            showResult('swapResult', result);
+            
+            // 如果交换成功，自动填充订单ID到追踪框
+            if (result.success && result.data && result.data.orderId) {
+                document.getElementById('orderId').value = result.data.orderId;
+            }
+        }
+
+        // 代币授权
+        async function approveToken() {
+            // 检查配置是否完整
+            if (!checkConfigurationReady()) {
+                showResult('approveResult', { 
+                    success: false, 
+                    message: '请先完成配置设置：填写完整的 OKX API 配置、网络配置和钱包信息，然后点击"设置配置"按钮' 
+                }, false);
+                return;
+            }
+
+            const fromTokenAddress = document.getElementById('fromToken').value;
+            const amount = getFinalAmount(); // 使用转换后的wei金额
+            const btn = document.querySelector('button[onclick="approveToken()"]');
+            
+            if (!btn.getAttribute('data-original-text')) {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            }
+
+            if (!fromTokenAddress) {
+                showResult('approveResult', { success: false, message: '请选择要授权的代币' }, false);
+                return;
+            }
+
+            // ETH不需要授权
+            if (fromTokenAddress.toLowerCase() === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') {
+                showResult('approveResult', { success: false, message: 'ETH 不需要授权，可以直接交换' }, false);
+                return;
+            }
+
+            if (!amount || amount === '0') {
+                showResult('approveResult', { success: false, message: '请输入有效的授权数量' }, false);
+                return;
+            }
+
+            if (!confirm('确定要授权代币吗？这将花费少量Gas费用。')) {
+                return;
+            }
+
+            setLoading(btn);
+
+            const result = await apiCall('/api/approve', 'POST', {
+                tokenAddress: fromTokenAddress,
+                amount: amount
+            });
+
+            setLoading(btn, false);
+            showResult('approveResult', result);
+        }
+
+        // 追踪交易
+        async function trackTransaction() {
+            const orderId = document.getElementById('orderId').value;
+            const btn = document.querySelector('button[onclick="trackTransaction()"]');
+            
+            if (!btn.getAttribute('data-original-text')) {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            }
+
+            if (!orderId) {
+                showResult('trackResult', { success: false, message: '请输入订单ID' }, false);
+                return;
+            }
+
+            setLoading(btn);
+
+            const result = await apiCall(`/api/track/${orderId}`);
+
+            setLoading(btn, false);
+            showResult('trackResult', result);
+        }
+
+        // 页面初始化
+        function initializePage() {
+            // 保存原始placeholder
+            const amountInput = document.getElementById('amount');
+            if (amountInput && !amountInput.getAttribute('data-original-placeholder')) {
+                amountInput.setAttribute('data-original-placeholder', amountInput.placeholder);
+            }
+            
+            // 设置初始链配置
+            updateChainConfig();
+            
+            // 检查是否有加密配置
+            ConfigManager.showUnlockInterface();
+            
+            // 如果没有加密配置，尝试加载传统的账户信息
+            if (!ConfigManager.hasEncryptedConfig()) {
+                loadAccountInfo();
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+
+        // 链配置信息
+        const CHAIN_CONFIG = {
+            '1': {
+                name: '以太坊主网',
+                nativeToken: {
+                    symbol: 'ETH',
+                    name: 'Ethereum',
+                    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+                    decimals: 18
+                },
+                rpcUrl: 'https://eth-mainnet.alchemyapi.io/v2/your_key',
+                commonTokens: [
+                    { symbol: 'USDC', address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+                    { symbol: 'USDT', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
+                    { symbol: 'DAI', address: '0x6B175474E89094C44Da98b954EedeAC495271d0F' },
+                    { symbol: 'WETH', address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' }
+                ]
+            },
+            '56': {
+                name: 'BSC',
+                nativeToken: {
+                    symbol: 'BNB',
+                    name: 'BNB',
+                    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+                    decimals: 18
+                },
+                rpcUrl: 'https://bsc-dataseed.binance.org/',
+                commonTokens: [
+                    { symbol: 'USDT', address: '0x55d398326f99059fF775485246999027B3197955' },
+                    { symbol: 'WBNB', address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' },
+                    { symbol: 'USDC', address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d' },
+                    { symbol: 'BUSD', address: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56' }
+                ]
+            },
+            '137': {
+                name: 'Polygon',
+                nativeToken: {
+                    symbol: 'MATIC',
+                    name: 'Polygon',
+                    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+                    decimals: 18
+                },
+                rpcUrl: 'https://polygon-mainnet.alchemyapi.io/v2/your_key',
+                commonTokens: [
+                    { symbol: 'USDC', address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174' },
+                    { symbol: 'USDT', address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F' },
+                    { symbol: 'WMATIC', address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270' },
+                    { symbol: 'WETH', address: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619' }
+                ]
+            },
+            '8453': {
+                name: 'Base',
+                nativeToken: {
+                    symbol: 'ETH',
+                    name: 'Ethereum',
+                    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+                    decimals: 18
+                },
+                rpcUrl: 'https://base-mainnet.alchemyapi.io/v2/your_key',
+                commonTokens: [
+                    { symbol: 'USDC', address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+                    { symbol: 'USDT', address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2' },
+                    { symbol: 'DAI', address: '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb' },
+                    { symbol: 'WETH', address: '0x4200000000000000000000000000000000000006' }
+                ]
+            },
+            '42161': {
+                name: 'Arbitrum',
+                nativeToken: {
+                    symbol: 'ETH',
+                    name: 'Ethereum',
+                    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+                    decimals: 18
+                },
+                rpcUrl: 'https://arb-mainnet.alchemyapi.io/v2/your_key',
+                commonTokens: [
+                    { symbol: 'USDC', address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831' },
+                    { symbol: 'USDT', address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9' },
+                    { symbol: 'DAI', address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1' },
+                    { symbol: 'WETH', address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' }
+                ]
+            },
+            '10': {
+                name: 'Optimism',
+                nativeToken: {
+                    symbol: 'ETH',
+                    name: 'Ethereum',
+                    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+                    decimals: 18
+                },
+                rpcUrl: 'https://opt-mainnet.alchemyapi.io/v2/your_key',
+                commonTokens: [
+                    { symbol: 'USDC', address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607' },
+                    { symbol: 'USDT', address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58' },
+                    { symbol: 'DAI', address: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1' },
+                    { symbol: 'WETH', address: '0x4200000000000000000000000000000000000006' }
+                ]
+            }
+        };
+
+        // 当前选择的链ID
+        let currentChainId = '1';
+
+        // 更新链配置
+        function updateChainConfig() {
+            const chainId = document.getElementById('chainId').value;
+            const rpcUrlInput = document.getElementById('rpcUrl');
+            
+            currentChainId = chainId;
+            const chainConfig = CHAIN_CONFIG[chainId];
+            
+            if (chainConfig && !rpcUrlInput.value.includes('your_key')) {
+                // 只有当用户没有自定义RPC时才更新
+                if (chainConfig.rpcUrl.includes('your_key')) {
+                    rpcUrlInput.placeholder = `请输入 ${chainConfig.name} 的 RPC URL`;
+                } else {
+                    rpcUrlInput.value = chainConfig.rpcUrl;
+                }
+            }
+            
+            // 更新快捷代币按钮
+            updateNativeTokenButton(chainConfig);
+            
+            // 更新示例显示
+            updateExamples(chainConfig);
+        }
+
+        // 更新原生代币按钮
+        function updateNativeTokenButton(chainConfig) {
+            const tokenButtons = document.querySelector('.token-buttons');
+            if (tokenButtons && chainConfig) {
+                // 清空现有按钮
+                tokenButtons.innerHTML = '';
+                
+                // 添加原生代币按钮
+                const nativeButton = document.createElement('button');
+                nativeButton.className = 'token-btn native-token-btn';
+                nativeButton.textContent = chainConfig.nativeToken.symbol;
+                nativeButton.onclick = () => selectToken('from', chainConfig.nativeToken.address);
+                tokenButtons.appendChild(nativeButton);
+                
+                // 添加常用代币按钮
+                chainConfig.commonTokens.forEach(token => {
+                    const button = document.createElement('button');
+                    button.className = 'token-btn';
+                    button.textContent = token.symbol;
+                    button.onclick = () => selectToken('from', token.address);
+                    tokenButtons.appendChild(button);
+                });
+            }
+        }
+
+        // 更新示例显示
+        function updateExamples(chainConfig) {
+            const amountInput = document.getElementById('amount');
+            if (chainConfig && amountInput) {
+                const symbol = chainConfig.nativeToken.symbol;
+                const placeholder = amountInput.getAttribute('data-original-placeholder') || amountInput.placeholder;
+                amountInput.placeholder = placeholder.replace('ETH', symbol);
+                
+                // 更新示例文本
+                const small = amountInput.nextElementSibling;
+                if (small && small.tagName === 'SMALL') {
+                    small.textContent = `示例: 0.001 ${symbol} = 1000000000000000`;
+                }
+            }
+        }
+
+        // 解锁配置
+        async function unlockConfig() {
+            const password = document.getElementById('unlockPassword').value;
+            const btn = document.querySelector('button[onclick="unlockConfig()"]');
+            
+            if (!password) {
+                showResult('unlockResult', { success: false, message: '请输入解锁密码' }, false);
+                return;
+            }
+            
+            if (!btn.getAttribute('data-original-text')) {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            }
+            
+            setLoading(btn);
+            
+            try {
+                const config = await ConfigManager.loadEncryptedConfig(password);
+                setLoading(btn, false);
+                
+                // 填充表单
+                ConfigManager.fillForm(config);
+                
+                // 显示配置界面
+                ConfigManager.showConfigInterface();
+                
+                // 显示控制按钮
+                document.getElementById('configControls').style.display = 'block';
+                
+                // 清空密码框
+                document.getElementById('unlockPassword').value = '';
+                
+                showResult('unlockResult', { 
+                    success: true, 
+                    message: `配置解锁成功！保存时间: ${new Date(config.savedAt).toLocaleString()}` 
+                }, true);
+                
+                // 3秒后隐藏解锁结果
+                setTimeout(() => {
+                    document.getElementById('unlockResult').style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                setLoading(btn, false);
+                showResult('unlockResult', { success: false, message: error.message }, false);
+            }
+        }
+
+        // 显示新建配置表单
+        function showNewConfigForm() {
+            if (confirm('这将清除当前保存的配置，确定要新建配置吗？')) {
+                ConfigManager.clearEncryptedConfig();
+                ConfigManager.showConfigInterface();
+                document.getElementById('configControls').style.display = 'none';
+            }
+        }
+
+        // 确认清除配置
+        function confirmClearConfig() {
+            if (confirm('确定要清除保存的配置吗？此操作不可恢复！')) {
+                ConfigManager.clearEncryptedConfig();
+                ConfigManager.showConfigInterface();
+                document.getElementById('configControls').style.display = 'none';
+                showResult('unlockResult', { success: true, message: '配置已清除' }, true);
+                setTimeout(() => {
+                    document.getElementById('unlockResult').style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        // 锁定配置
+        function lockConfig() {
+            if (confirm('确定要锁定配置吗？需要重新输入密码才能解锁。')) {
+                ConfigManager.lock();
+            }
+        }
+
+        // 显示保存密码对话框
+        function showSavePasswordDialog() {
+            const dialog = document.getElementById('savePasswordDialog');
+            dialog.style.display = 'flex';
+            document.getElementById('savePassword').focus();
+        }
+
+        // 关闭保存密码对话框
+        function closeSavePasswordDialog() {
+            const dialog = document.getElementById('savePasswordDialog');
+            dialog.style.display = 'none';
+            document.getElementById('savePassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('savePasswordResult').style.display = 'none';
+        }
+
+        // 确认保存配置
+        async function confirmSaveConfig() {
+            const password = document.getElementById('savePassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!password || !confirmPassword) {
+                showResult('savePasswordResult', { success: false, message: '请填写所有密码字段' }, false);
+                return;
+            }
+            
+            if (password.length < 8) {
+                showResult('savePasswordResult', { success: false, message: '密码长度至少8位' }, false);
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showResult('savePasswordResult', { success: false, message: '两次输入的密码不一致' }, false);
+                return;
+            }
+            
+            // 收集当前配置
+            const config = {
+                okxApiKey: document.getElementById('okxApiKey').value,
+                okxSecretKey: document.getElementById('okxSecretKey').value,
+                okxPassphrase: document.getElementById('okxPassphrase').value,
+                okxProjectId: document.getElementById('okxProjectId').value,
+                rpcUrl: document.getElementById('rpcUrl').value,
+                chainId: document.getElementById('chainId').value,
+                walletAddress: document.getElementById('walletAddress').value,
+                privateKey: document.getElementById('privateKey').value
+            };
+            
+            // 验证配置完整性
+            const requiredFields = ['okxApiKey', 'okxSecretKey', 'okxPassphrase', 'okxProjectId', 'rpcUrl', 'chainId', 'walletAddress', 'privateKey'];
+            const missingFields = requiredFields.filter(field => !config[field]);
+            
+            if (missingFields.length > 0) {
+                showResult('savePasswordResult', { 
+                    success: false, 
+                    message: `请先完整填写配置信息，缺少: ${missingFields.join(', ')}` 
+                }, false);
+                return;
+            }
+            
+            try {
+                const success = await ConfigManager.saveEncryptedConfig(config, password);
+                
+                if (success) {
+                    showResult('savePasswordResult', { 
+                        success: true, 
+                        message: '配置保存成功！已加密存储到本地。' 
+                    }, true);
+                    
+                    // 2秒后关闭对话框
+                    setTimeout(() => {
+                        closeSavePasswordDialog();
+                        // 显示控制按钮
+                        document.getElementById('configControls').style.display = 'block';
+                    }, 2000);
+                    
+                } else {
+                    showResult('savePasswordResult', { success: false, message: '保存配置失败' }, false);
+                }
+                
+            } catch (error) {
+                showResult('savePasswordResult', { success: false, message: '保存失败: ' + error.message }, false);
+            }
+        }
+
+        // 验证OKX API配置
+        async function validateOKXAPI() {
+            const okxApiKey = document.getElementById('okxApiKey').value;
+            const okxSecretKey = document.getElementById('okxSecretKey').value;
+            const okxPassphrase = document.getElementById('okxPassphrase').value;
+            const okxProjectId = document.getElementById('okxProjectId').value;
+            const btn = document.querySelector('button[onclick="validateOKXAPI()"]');
+            
+            // 验证必填字段
+            if (!okxApiKey || !okxSecretKey || !okxPassphrase || !okxProjectId) {
+                showResult('validateResult', { 
+                    success: false, 
+                    message: '请先填写完整的OKX API配置信息' 
+                }, false);
+                return;
+            }
+            
+            if (!btn.getAttribute('data-original-text')) {
+                btn.setAttribute('data-original-text', btn.innerHTML);
+            }
+            
+            setLoading(btn);
+            
+            try {
+                const result = await apiCall('/api/validate-okx', 'POST', {
+                    okxApiKey,
+                    okxSecretKey,
+                    okxPassphrase,
+                    okxProjectId
+                });
+                
+                setLoading(btn, false);
+                
+                if (result.success) {
+                    showResult('validateResult', {
+                        success: true,
+                        message: '✅ OKX API 配置验证成功！可以正常使用。',
+                        details: result.data
+                    }, true);
+                } else {
+                    let errorContent = `❌ ${result.message}`;
+                    
+                    if (result.debug) {
+                        errorContent += `<br><br><strong>调试信息：</strong><br>`;
+                        errorContent += `状态码: ${result.debug.status || 'N/A'}<br>`;
+                        errorContent += `错误: ${result.debug.error || 'N/A'}<br>`;
+                        
+                        if (result.debug.possibleCauses) {
+                            errorContent += `<br><strong>可能原因：</strong><ul>`;
+                            result.debug.possibleCauses.forEach(cause => {
+                                errorContent += `<li>${cause}</li>`;
+                            });
+                            errorContent += `</ul>`;
+                        }
+                        
+                        if (result.response) {
+                            errorContent += `<br><strong>OKX响应：</strong><br>`;
+                            errorContent += `<pre style="font-size: 0.8em; max-height: 200px; overflow-y: auto;">${JSON.stringify(result.response, null, 2)}</pre>`;
+                        }
+                    }
+                    
+                    document.getElementById('validateResult').innerHTML = errorContent;
+                    document.getElementById('validateResult').className = 'result error';
+                    document.getElementById('validateResult').style.display = 'block';
+                }
+                
+            } catch (error) {
+                setLoading(btn, false);
+                showResult('validateResult', { 
+                    success: false, 
+                    message: `网络请求失败: ${error.message}` 
+                }, false);
+            }
+        }
+
+        // 格式化交换结果
+        function formatSwapResult(data) {
+            console.log('前端接收到的交换结果:', data); // 调试日志
+            
+            if (!data) {
+                return '❌ 没有返回交换数据';
+            }
+
+            let displayContent = '';
+            
+            // 检查交换是否成功
+            if (data.success === true && data.txHash) {
+                displayContent = `
+                    <div style="background: #d4edda; border: 1px solid #4caf50; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">🎉 BSC链交换成功！</div>
+                        
+                        <div style="margin-bottom: 6px;">
+                            <strong>交易哈希:</strong> <code style="background: #e8f5e8; padding: 2px 4px; border-radius: 2px; word-break: break-all; font-size: 0.8em;">${data.txHash}</code>
+                        </div>
+                        
+                        ${data.orderId ? `
+                        <div style="margin-bottom: 6px;">
+                            <strong>订单ID:</strong> <code style="background: #e8f5e8; padding: 2px 4px; border-radius: 2px; word-break: break-all; font-size: 0.8em;">${data.orderId}</code>
+                        </div>
+                        ` : ''}
+                        
+                        ${data.quote && data.quote.fromToken && data.quote.toToken ? `
+                        <div style="margin-bottom: 6px; padding: 4px; background: #f8f9fa; border-radius: 2px;">
+                            <strong>交换详情:</strong><br>
+                            <span style="font-size: 0.85em;">
+                                ${(parseFloat(data.quote.fromTokenAmount) / Math.pow(10, parseInt(data.quote.fromToken.decimal || 18))).toFixed(6)} ${data.quote.fromToken.tokenSymbol}
+                                → 
+                                ${(parseFloat(data.quote.toTokenAmount) / Math.pow(10, parseInt(data.quote.toToken.decimal || 18))).toFixed(6)} ${data.quote.toToken.tokenSymbol}
+                            </span>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #c8e6c9; padding-top: 6px; margin-top: 8px;">
+                            ✅ 交换已在BSC链上成功执行
+                        </div>
+                    </div>
+                `;
+            } else if (data.success === false) {
+                displayContent = `
+                    <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #721c24; margin-bottom: 6px;">❌ BSC链交换失败</div>
+                        <div style="font-size: 0.85em; color: #666;">
+                            错误信息: ${data.error || '未知错误'}
+                        </div>
+                    </div>
+                `;
+            } else if (data.orderId) {
+                // 兼容旧格式
+                displayContent = `
+                    <div style="background: #d4edda; border: 1px solid #4caf50; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">🎉 交换提交成功！</div>
+                        
+                        <div style="margin-bottom: 6px;">
+                            <strong>订单ID:</strong> <code style="background: #e8f5e8; padding: 2px 4px; border-radius: 2px;">${data.orderId}</code>
+                        </div>
+                        
+                        ${data.txHash ? `
+                        <div style="margin-bottom: 6px;">
+                            <strong>交易哈希:</strong> <code style="background: #e8f5e8; padding: 2px 4px; border-radius: 2px;">${data.txHash}</code>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #c8e6c9; padding-top: 6px; margin-top: 8px;">
+                            ⏳ 交换正在处理中，请使用订单ID追踪交易状态
+                        </div>
+                    </div>
+                `;
+            } else {
+                displayContent = `
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #856404; margin-bottom: 6px;">⚠️ 交换状态未知</div>
+                        <div style="font-size: 0.85em; color: #666;">
+                            没有收到明确的交换结果，请检查交换是否成功提交
+                        </div>
+                        <pre style="font-size: 0.75em; background: #f8f9fa; padding: 4px; border-radius: 2px; margin-top: 4px; max-height: 100px; overflow-y: auto;">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            }
+
+            return displayContent;
+        }
+
+        // 格式化授权结果
+        function formatApprovalResult(data) {
+            console.log('前端接收到的授权结果:', data); // 调试日志
+            
+            if (!data) {
+                return '❌ 没有返回授权数据';
+            }
+
+            let displayContent = '';
+            
+            if (data.needApproval === false) {
+                displayContent = `
+                    <div style="background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #0c5460; margin-bottom: 6px;">ℹ️ BSC代币已经授权</div>
+                        <div style="font-size: 0.85em; color: #666;">
+                            该代币已经有足够的授权额度，可以直接进行交换
+                        </div>
+                    </div>
+                `;
+            } else if (data.needApproval === true && data.txHash) {
+                displayContent = `
+                    <div style="background: #d4edda; border: 1px solid #4caf50; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">✅ BSC链授权交易成功</div>
+                        
+                        <div style="margin-bottom: 6px;">
+                            <strong>交易哈希:</strong> <code style="background: #e8f5e8; padding: 2px 4px; border-radius: 2px; word-break: break-all; font-size: 0.8em;">${data.txHash}</code>
+                        </div>
+                        
+                        ${data.orderId ? `
+                        <div style="margin-bottom: 6px;">
+                            <strong>订单ID:</strong> <code style="background: #e8f5e8; padding: 2px 4px; border-radius: 2px; word-break: break-all; font-size: 0.8em;">${data.orderId}</code>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #c8e6c9; padding-top: 6px; margin-top: 8px;">
+                            ✅ 代币授权已在BSC链上成功执行，现在可以进行交换
+                        </div>
+                    </div>
+                `;
+            } else if (data.txHash) {
+                // 兼容旧格式
+                displayContent = `
+                    <div style="background: #d4edda; border: 1px solid #4caf50; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">✅ 授权交易已提交</div>
+                        
+                        <div style="margin-bottom: 6px;">
+                            <strong>交易哈希:</strong> <code style="background: #e8f5e8; padding: 2px 4px; border-radius: 2px;">${data.txHash}</code>
+                        </div>
+                        
+                        <div style="font-size: 0.85em; color: #666; border-top: 1px solid #c8e6c9; padding-top: 6px; margin-top: 8px;">
+                            ⏳ 授权交易正在处理中，完成后即可进行代币交换
+                        </div>
+                    </div>
+                `;
+            } else {
+                displayContent = `
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin: 4px 0;">
+                        <div style="font-weight: bold; color: #856404; margin-bottom: 6px;">⚠️ 授权状态未知</div>
+                        <div style="font-size: 0.85em; color: #666;">
+                            授权结果不明确，请检查钱包或重新尝试
+                        </div>
+                        <pre style="font-size: 0.75em; background: #f8f9fa; padding: 4px; border-radius: 2px; margin-top: 4px; max-height: 100px; overflow-y: auto;">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            }
+
+            return displayContent;
+        }
+    </script>
+</body>
+</html> 

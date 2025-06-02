@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试页面</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .result { 
+            margin: 10px 0; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            background: #f9f9f9; 
+            white-space: pre-wrap;
+        }
+        button { 
+            margin: 5px; 
+            padding: 10px 15px; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 前端API调试页面</h1>
+    
+    <h2>配置测试</h2>
+    <button onclick="testConfig()">测试配置设置</button>
+    <button onclick="testAccountInfo()">测试账户信息</button>
+    <div id="configResult" class="result"></div>
+    
+    <h2>API测试</h2>
+    <button onclick="testQuote()">测试获取报价</button>
+    <button onclick="testApprove()">测试代币授权</button>
+    <div id="apiResult" class="result"></div>
+    
+    <h2>日志</h2>
+    <div id="logResult" class="result"></div>
+
+    <script>
+        // API 调用函数
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                log(`🚀 API调用: ${method} ${endpoint}`);
+                if (data) {
+                    log(`📤 请求数据: ${JSON.stringify(data, null, 2)}`);
+                }
+                
+                const response = await fetch(endpoint, options);
+                const result = await response.json();
+                
+                log(`📥 响应状态: ${response.status}`);
+                log(`📥 响应数据: ${JSON.stringify(result, null, 2)}`);
+                
+                return result;
+            } catch (error) {
+                log(`❌ 请求失败: ${error.message}`);
+                return {
+                    success: false,
+                    message: error.message
+                };
+            }
+        }
+
+        function log(message) {
+            const logDiv = document.getElementById('logResult');
+            logDiv.textContent += new Date().toLocaleTimeString() + ' - ' + message + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function showResult(elementId, result) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(result, null, 2);
+        }
+
+        // 测试配置设置
+        async function testConfig() {
+            log('🔧 开始测试配置设置...');
+            
+            const configData = {
+                okxApiKey: '3e9368cb-fbc8-4619-99d5-be6ae9d4a587',
+                okxSecretKey: 'A9A90D44BAB95D173D3B1E6D7A0E5B8A',
+                okxPassphrase: 'Aa5201314@',
+                okxProjectId: '6fce5249fd13eeceab040c742db888d0',
+                rpcUrl: 'https://bsc-dataseed.binance.org/',
+                chainId: '56',
+                walletAddress: '0xdc7396cc6b301a77562737c7f37f02d1f02a0ae3',
+                privateKey: '5db1ed7baf98ae8d5b76e65411ec58ba48a5065fd3fb3d5f3ddfa8b13e7329ba'
+            };
+
+            const result = await apiCall('/api/config', 'POST', configData);
+            showResult('configResult', result);
+        }
+
+        // 测试账户信息
+        async function testAccountInfo() {
+            log('📊 开始测试账户信息...');
+            const result = await apiCall('/api/account');
+            showResult('configResult', result);
+        }
+
+        // 测试获取报价
+        async function testQuote() {
+            try {
+                const quoteData = {
+                    fromTokenAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', // ETH
+                    toTokenAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
+                    amount: '1000000000000000000', // 1 ETH
+                    slippage: '0.5',
+                    chainIndex: '1', // 以太坊链索引
+                    chainId: '1',    // 以太坊链ID（兼容）
+                    userWalletAddress: '0x742d35cc6635C0532925a3b8F2F3126dfC6C6F1b' // 恢复必需的参数
+                };
+                
+                showLog(`发送报价请求: ${JSON.stringify(quoteData, null, 2)}`);
+                const result = await apiCall('/api/quote', 'POST', quoteData);
+                showResult('quoteResult', result);
+            } catch (error) {
+                console.error('报价测试失败:', error);
+                showResult('quoteResult', { success: false, error: error.message });
+            }
+        }
+
+        // 测试代币授权
+        async function testApprove() {
+            log('🔐 开始测试代币授权...');
+            
+            const approveData = {
+                tokenAddress: '0x55d398326f99059fF775485246999027B3197955', // USDT
+                amount: '1000000000000000000' // 1 USDT
+            };
+
+            const result = await apiCall('/api/approve', 'POST', approveData);
+            showResult('apiResult', result);
+        }
+
+        log('✅ 调试页面加载完成');
+    </script>
+</body>
+</html> 
